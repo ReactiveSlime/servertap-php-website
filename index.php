@@ -16,15 +16,24 @@
 
     //echo "<script type='text/javascript' src='file.js'></script>";
     //get json data from url
-    $players = file_get_contents( $address . '/v1/players');
-    $server_stats = file_get_contents( $address . '/v1/server');
-    $server = json_decode($server_stats);
-    $world_stats = file_get_contents( $address . '/v1/worlds/'.  $overworld);
+
+
+    $players_url= $address . '/v1/players/';
+    $server_stats_url = $address . '/v1/server/';
+    $world_stats_url = $address . '/v1/worlds/' . $overworld;
+
+    $players = file_get_contents( $players_url, false,  $context,);
+    $server_stats = file_get_contents( $server_stats_url, false, $context,);
+    $world_stats = file_get_contents( $world_stats_url, false, $context,);
     $world_stats = json_decode($world_stats);
+    $server = json_decode($server_stats);
+
+
+
 
     /* #region server-stats */
     //SERVER STATS
-    $server = json_decode($server_stats);
+
     echo "The server TPS is " . $server->tps . "<br>";
 
     //prints uptime
