@@ -2,36 +2,11 @@
 require_once('func.php');
 require_once('settings.php');
 
+$user_url = $address . '/v1/players/' . htmlspecialchars($_GET["uuid"]);
 
-
-$user = file_get_contents( $address . '/v1/players/' . htmlspecialchars($_GET["uuid"]));
+$user = file_get_contents( $user_url, false,  $context,);
 //$user = file_get_contents('./' . $_GET ['uuid'] . '.json');
 $player = json_decode($user);
-
-
-/*
-//xp to level
-$exp = 92;
-/*Total experience =
-level2 + 6 × level (at levels 0–16)
-2.5 × level2 – 40.5 × level + 360 (at levels 17–31)
-4.5 × level2 – 162.5 × level + 2220 (at levels 32+)
-*/
-/*
-$level = 0;
-if ($exp >= 0 && $exp <= 16) {
-    $level = $exp / 6;
-    echo "Level: " . $level . "<br>";
-} elseif ($exp >= 17 && $exp <= 31) {
-    $level = ($exp - 16) / 2.5 + 16;
-    echo "Level: " . $level . "<br>";
-} elseif ($exp >= 32) {
-    $level = ($exp - 31) / 4.5 + 31;
-    echo "Level: " . $level . "<br>";
-}
-*/
-
-
 
 echo "<!DOCTYPE html>";
 echo "<html lang='en'>";
@@ -77,7 +52,7 @@ if ($health % 2 == 0) {
         echo "<img src='./assets/img/heart_empty.png' style='width: 1rem;'>";
     }
 }
-
+echo "&nbsp&nbsp&nbsp";
 //hunger bar
 //same as health bar but with hunger and flip the order of the images
 // so empty hunger first then half then full
