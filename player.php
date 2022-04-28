@@ -2,11 +2,29 @@
 require_once('func.php');
 require_once('settings.php');
 
-$user_url = $address . '/v1/players/' . htmlspecialchars($_GET["uuid"]);
 
-$user = file_get_contents( $user_url, false,  $context,);
-//$user = file_get_contents('./' . $_GET ['uuid'] . '.json');
-$player = json_decode($user);
+
+
+
+if ($_GET["uuid"] == "") {
+    exit("No UUID specified");
+}
+if ($player == NULL){
+    $name = file_get_contents('https://api.mojang.com/user/profiles/' . $_GET["uuid"] . '/names');
+    //check to see if request was successful
+    if ($name == false) {
+        echo "The UUID provided is invalid.";
+        exit;
+    } else {
+        //get the last name in the array
+        $name = json_decode($name);
+        $name = $name[count($name)-1]->name;
+        echo "    <title>" . $name . "</title>";
+        echo  $name . " is offline.";
+    }
+    exit;
+} 
+
 
 echo "<!DOCTYPE html>";
 echo "<html lang='en'>";
