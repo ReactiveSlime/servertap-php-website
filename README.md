@@ -1,3 +1,5 @@
+This branch is for me to test if I should remove player.php and just move the data displayed in there in index.php instead
+
 # servertap-php-website
 A php wrapper that displays stats about your server and players using [servertap](https://servertap.io)
 
