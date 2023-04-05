@@ -1,132 +1,105 @@
 <?php
-require_once('func.php');
 require_once('settings.php');
 
-
-
-
-
-if ($_GET["uuid"] == "") {
+// Gets the UUID from the URL and exits if one is not provided
+if (!isset($_GET["uuid"])) {
     exit("No UUID specified");
 }
-if ($player == NULL){
-    $name = file_get_contents('https://api.mojang.com/user/profiles/' . $_GET["uuid"] . '/names');
-    //check to see if request was successful
-    if ($name == false) {
-        echo "The UUID provided is invalid.";
-        exit;
+
+// Gets player data using the provided UUID
+$player_url = $address . '/v1/players/' . htmlspecialchars($_GET["uuid"]);
+$player_json = @file_get_contents($player_url, false, $context);
+
+// Checks if player is on or off
+if ($player_json === false) {
+    // Player is offline
+    $name_json = file_get_contents("https://sessionserver.mojang.com/session/minecraft/profile/" . $_GET["uuid"]);
+    $name = json_decode($name_json);
+    if ($name === null) {
+        echo "Invalid UUID proviced";
+    } else
+    echo $name->name . " is offline";
+} else {
+    // Player is online
+    $player = json_decode($player_json);
+    echo $player->displayName . "</br>";
+    echo "Health: " . ceil($player->health) . "</br>";
+    echo "Hunger: " . ceil($player->hunger) . "</br>";
+    // Vars for Health and Hunger
+    $health = ceil($player->health);
+    $max_health = 20;
+    $hearts = $health / 2;
+    $empty_hearts = $max_health / 2 - $hearts;
+    $hunger = ceil($player->hunger);
+    $max_hunger = 20;
+    $food = $hunger / 2;
+    $empty_food = $max_hunger / 2 - $food;
+
+
+    // Loop through all hearts and empty hearts
+    if ($health % 2 == 0) {
+        for ($i = 0; $i < $hearts; $i++) {
+            echo "<img src='./assets/img/heart.png' style='width: 1rem;'>";
+        }
+        for ($i = 0; $i < $empty_hearts; $i++) {
+            echo "<img src='./assets/img/heart_empty.png' style='width: 1rem;'>";
+        }
     } else {
-        //get the last name in the array
-        $name = json_decode($name);
-        $name = $name[count($name)-1]->name;
-        echo "    <title>" . $name . "</title>";
-        echo  $name . " is offline.";
+        for ($i = 0; $i < $hearts - 1; $i++) {
+            echo "<img src='./assets/img/heart.png' style='width: 1rem;'>";
+        }
+        echo "<img src='./assets/img/heart_half.png' style='width: 1rem;'>";
+        for ($i = 0; $i < $empty_hearts - 1; $i++) {
+            echo "<img src='./assets/img/heart_empty.png' style='width: 1rem;'>";
+        }
     }
-    exit;
-} 
-
-
-echo "<!DOCTYPE html>";
-echo "<html lang='en'>";
-echo "<head>";
-echo "    <meta charset='UTF-8'>";
-echo "    <meta http-equiv='X-UA-Compatible' content='IE=edge'>";
-echo "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-echo "    <title>" . $player->displayName . "</title>";
-echo "    <link rel='stylesheet' href='./assets/css/style.css'>";
-echo "</head>";
-echo "<body>";
-
-echo "<h1>" . $player->displayName . "</h1>";
-
-//health
-echo "<div class='health-hunger'>";
-echo "<p>Health: " . ceil($player->health) . "</p>";
-echo "<p>hunger: " . ceil($player->hunger) . "</p>";
-
-/* #region Health-Hunger */
-//health bar
-$health = ceil($player->health);
-$max_health = 20;
-$hearts = $health / 2;
-$empty_hearts = $max_health / 2 - $hearts;
-$hunger = ceil($player->hunger);
-$max_hunger = 20;
-$food = $hunger / 2;
-$empty_food = $max_hunger / 2 - $food;
-if ($health % 2 == 0) {
-    for ($i = 0; $i < $hearts; $i++) {
-        echo "<img src='./assets/img/heart.png' style='width: 1rem;'>";
+    echo "&nbsp&nbsp&nbsp";
+    //hunger bar
+    //same as health bar but with hunger and flip the order of the images
+    // so empty hunger first then half then full
+    if ($hunger % 2 == 0) {
+    
+        for ($i = 0; $i < $empty_food; $i++) {
+            echo "<img src='./assets/img/food_empty.png' style='width: 1rem;'>";
+        }
+        for ($i = 0; $i < $food; $i++) {
+            echo "<img src='./assets/img/food.png' style='width: 1rem;'>";
+        }
+    } else {
+        for ($i = 0; $i < $empty_food - 1; $i++) {
+            echo "<img src='./assets/img/food_empty.png' style='width: 1rem;'>";
+        }
+        echo "<img src='./assets/img/food_half.png' style='width: 1rem;'>";
+        for ($i = 0; $i < $food - 1; $i++) {
+            echo "<img src='./assets/img/food.png' style='width: 1rem;'>";
+        }
     }
-    for ($i = 0; $i < $empty_hearts; $i++) {
-        echo "<img src='./assets/img/heart_empty.png' style='width: 1rem;'>";
-    }
+    echo "</br>";
+// Gets the players X,Y,Z and converts it into a more usable format
+$location = $player->location;
+$player_x = (int) $location[0];
+$player_y = (int) $location[1];
+$player_z = (int) $location[2];
+
+// Construct the location text
+$player_location_text = "X,Y,Z " . $player_x . " / " . $player_y . " / " . $player_z;
+
+// Define the dimension names
+$dimension_names = [
+    "NORMAL" => "Overworld",
+    "NETHER" => "The Nether",
+    "END" => "The End",
+];
+
+// Check what dimension the player is currently in
+$dimension = $player->dimension;
+if (isset($dimension_names[$dimension])) {
+    // Use the dimension name to construct the output message
+    echo $dimension_names[$dimension] . ": " . $player_location_text;
+    //dynmap ifram can be added here if wanted
 } else {
-    for ($i = 0; $i < $hearts - 1; $i++) {
-        echo "<img src='./assets/img/heart.png' style='width: 1rem;'>";
-    }
-    echo "<img src='./assets/img/heart_half.png' style='width: 1rem;'>";
-    for ($i = 0; $i < $empty_hearts - 1; $i++) {
-        echo "<img src='./assets/img/heart_empty.png' style='width: 1rem;'>";
-    }
+    // If the dimension is not recognized, output an error message
+    echo "Unknown Dimension: " . $player_location_text;
 }
-echo "&nbsp&nbsp&nbsp";
-//hunger bar
-//same as health bar but with hunger and flip the order of the images
-// so empty hunger first then half then full
-if ($hunger % 2 == 0) {
 
-    for ($i = 0; $i < $empty_food; $i++) {
-        echo "<img src='./assets/img/food_empty.png' style='width: 1rem;'>";
-    }
-    for ($i = 0; $i < $food; $i++) {
-        echo "<img src='./assets/img/food.png' style='width: 1rem;'>";
-    }
-} else {
-    for ($i = 0; $i < $empty_food - 1; $i++) {
-        echo "<img src='./assets/img/food_empty.png' style='width: 1rem;'>";
-    }
-    echo "<img src='./assets/img/food_half.png' style='width: 1rem;'>";
-    for ($i = 0; $i < $food - 1; $i++) {
-        echo "<img src='./assets/img/food.png' style='width: 1rem;'>";
-    }
 }
-echo "</div>";
-echo "<div class=location>";
-/* #endregion */
-/* #region dynmap */
-//chage text based on dimension
-if ($player->dimension == "NORMAL") {
-    echo "<p>I am currently in the overworld at ";
-    //get x y z coords from array called location
-    $location = $player->location;
-    echo " X: " . (int)$location[0] . " Y: " . (int)$location[1] . " Z: " . (int)$location[2] . "</p>";
-    echo "<a href='https://map.reactivesli.me/?worldname=world&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "'target='_blank'> View my location on dynmap</a><br>";
-    //iframe with dynmap
-
-    echo "<iframe class='dynmap' marginheight='0' marginwidth='0' height='100%' width='100%' display='block' border='none' outline='none' margin='none' src='https://map.reactivesli.me/?worldname=world&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "' scrolling='no' seamless='yes' allowfullscreen='yes' frameborder='0' style='height: 79vh;'></iframe>";
-
-
-} elseif ($player->dimension == "NETHER") {
-    echo "<p>I am currently in the nether at";
-    $location = $player->location;
-    echo " X: " . (int)$location[0] . " Y: " . (int)$location[1] . " Z: " . (int)$location[2] . "</p>";
-    echo "<a href='https://map.reactivesli.me/?worldname=world_nether&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "'target='_blank'> View my location on dynmap</a><br>";
-    //iframe with dynmap
-    echo "<iframe class='dynmap' marginheight='0' marginwidth='0' height='100%' width='100%' display='block' border='none' outline='none' margin='none' src='https://map.reactivesli.me/?worldname=world_nether&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "' scrolling='no' seamless='yes' allowfullscreen='yes' frameborder='0' style='height: 79vh;'></iframe>";
-} elseif ($player->dimension == "END") {
-    echo "<p>I am currently in the end at";
-    $location = $player->location;
-    echo " X: " . (int)$location[0] . " Y: " . (int)$location[1] . " Z: " . (int)$location[2] . "</p>";
-    echo "<a href='https://map.reactivesli.me/?worldname=world_the_end&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "'target='_blank'> View my location on dynmap</a><br>";
-    //iframe with dynmap
-    echo "<iframe class='dynmap' marginheight='0' marginwidth='0' height='100%' width='100%' display='block' border='none' outline='none' margin='none' src='https://map.reactivesli.me/?worldname=world_the_end&mapname=flat&zoom=6&x=" . (int)$location[0] . "&y=64&z=" . (int)$location[2] . "' scrolling='no' seamless='yes' allowfullscreen='yes' frameborder='0' style='height: 79vh;'></iframe>";
-}
-/* #endregion */
-echo "</div>";
-echo "<br>";
-
-?>
-
-</body>
-</html>

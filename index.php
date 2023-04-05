@@ -1,70 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beta Playerstats page</title>
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <!---<script type='text/javascript' src='file.js'></script>--->
-</head>
-
-<body>
-    <?php
-    require_once('func.php');
+<?php
     require_once('settings.php');
+    require_once('functions.php');
 
-    /* #region server-stats */
-    //SERVER STATS
+    // Get online player data, world data, and server data
+    $online_players = file_get_contents($address . '/v1/players/', false, $context);
+    $world_json = file_get_contents($address . '/v1/worlds/' .  $world, false, $context);
+    $server_json = file_get_contents($address . '/v1/server/', false, $context);
 
-    //Convert server ticks to 24 hour time. 0 ticks being 6am and 5:59:59am is 24000 ticks.
-    $server_ticks = $world_stats->time;
+    // Decode world and server data from JSON to PHP objects
+    $world_json = json_decode($world_json);
+    $server_json = json_decode($server_json);
 
-    echo "The server TPS is " . $server->tps . "<br>";
-
-    //prints uptime
-    $seconds = $server->health->uptime;
-    echo "The server uptime is " . secondsToTime($seconds) . "<br>";
-
-    //check to see if it is storming . if it is also check to see if it is thundering else its clear
-    if ($world_stats->storm == true) {
-        if ($world_stats->thundering == true) {
-            echo "The server weather thundering<br>";
-        } else {
-            echo "The server weather is storming<br>";
-        }
-    } else {
-        echo "The server weather is clear<br>";
-    }
+    // Calculate and format memory usage
+    $freeMemoryGB = number_format($server_json->health->freeMemory / (1024 * 1024 * 1024), 2);
+    $maxMemoryGB = number_format($server_json->health->maxMemory / (1024 * 1024 * 1024), 2);
     
-    /* #endregion */
-    //PLAYER STATS
-    //check how many players are online and print the number
-    $online = 0;
-    foreach (json_decode($players) as $player) {
-        $online++;
-    }
+    // Display server stats
+    echo "The Server TPS Is " . $server_json->tps;
+    echo "</br>";
+    echo "Server Memory $freeMemoryGB GB/$maxMemoryGB GB";
+    echo "</br>";
+    echo "The Server Uptime Is " . secondsToTime($server_json->health->uptime);
+    echo "</br>";
+    $weather = $world_json->storm ? ($world_json->thundering ? "Thunder" : "Storm") : "Clear";
+    echo "The Server Weather Is $weather";
+    echo "</br></br>";
+    
+    // Display player stats
+    $online_players = json_decode($online_players);
 
-    //if player count is 1, then print "1 player is online" else print "X players are online"
-    if ($online == 1) {
-        echo "<h1>There is 1 player is online</h1>";
+    if ($online = count($online_players)) {
+        // Display number of online players
+        echo "There " . ($online == 1 ? "is" : "are") . " $online player" . ($online == 1 ? "" : "s") . " online<br>";
+    
+        // Create an array of formatted strings for each player
+        $player_html = array_map(function($player) {
+            return sprintf(
+                '%s <a href="player.php?uuid=%s">View Player</a><br><img src="https://crafatar.com/avatars/%s" width="64px" alt="Minecraft player head"/>',
+                htmlspecialchars($player->displayName), // Escape display name for safety
+                htmlspecialchars($player->uuid), // Escape UUID for safety
+                htmlspecialchars($player->uuid) // Escape UUID for safety
+            );
+        }, $online_players);
+    
+        // Join player HTML strings with line breaks
+        echo implode("<br>", $player_html);
     } else {
-        echo "<h1>There are " . $online . " players are online</h1>";
+        echo "There are no players online";
     }
-    foreach (json_decode($players) as $player) {
-
-        //gets stats about the player
-        echo "<div class='player'>";
-        echo "<h2>" . $player->displayName . "</h2>";
-        echo "<a href='player.php?uuid=" . $player->uuid . "'>View Player</a>";
-        echo "<br>";
-
-        //get the players head
-        echo "<img src='https://crafatar.com/avatars/" . $player->uuid . "' width=64px alt='Minecraft player head'/>" . '<br> <br>';
-        echo "</div>";
-    }
-    ?>
-</body>
-
-</html>
+?>
