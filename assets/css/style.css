@@ -1,14 +1,26 @@
-body html body.iframe{
-    height: 100%
-};
+.online-players {
+    font-weight: bold;
+}
+
+.player {
+    margin-bottom: 20px;
+}
+
+.player-avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+.player a {
+    font-size: 1.5em;
+    font-weight: bold;
+}
 
 
-#dynmap{
-    height:"100%";
-    width:"100%";
-    display:"block";
-    border:"none";
-    outline:"none";
-    margin:"none"
-    
-};
+.player-health img,
+.player-hunger img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-left: 5px;
+}
