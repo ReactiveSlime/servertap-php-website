@@ -29,15 +29,13 @@ $freeMemoryGB = number_format($server_json->health->freeMemory / (1024 * 1024 * 
 $maxMemoryGB = number_format($server_json->health->maxMemory / (1024 * 1024 * 1024), 2);
 
 // Display server stats
-echo "The Server TPS Is " . $server_json->tps;
-echo "</br>";
-echo "Server Memory $freeMemoryGB GB/$maxMemoryGB GB";
-echo "</br>";
-echo "The Server Uptime Is " . secondsToTime($server_json->health->uptime);
-echo "</br>";
+echo '<div class="container">';
+echo '<div class="server-stats">Server Stats:</div>';
+echo 'The Server TPS Is <span class="tps">' . $server_json->tps . '</span><br>';
+echo 'Server Memory <span class="memory">' . $freeMemoryGB . ' GB</span>/<span class="memory">' . $maxMemoryGB . ' GB</span><br>';
+echo 'The Server Uptime Is <span class="uptime">' . secondsToTime($server_json->health->uptime) . '</span><br>';
 $weather = $world_json->storm ? ($world_json->thundering ? "Thunder" : "Storm") : "Clear";
-echo "The Server Weather Is $weather";
-echo "</br></br>";
+echo 'The Server Weather Is <span class="weather">' . $weather . '</span><br><br>';
 
 // Display player stats
 $online_players = json_decode($online_players);
@@ -99,6 +97,7 @@ return sprintf(
 } else {
     echo "There are no players online";
 }
+echo '</div>';
 ?>
 </body>
 
