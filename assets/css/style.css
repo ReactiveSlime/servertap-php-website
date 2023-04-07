@@ -12,6 +12,32 @@ body {
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
+
+
+.console-btn {
+	float: right;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+}
+.console-btn:hover {
+	background:linear-gradient(to bottom, #007bff 5%, #007bff 100%);
+	background-color:#007bff;
+}
+.console-btn:active {
+	position:relative;
+	top:1px;
+}
+
 .server-stats {
 	font-size: 1.2rem;
 	font-weight: bold;

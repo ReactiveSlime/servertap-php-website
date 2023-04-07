@@ -30,6 +30,9 @@ $maxMemoryGB = number_format($server_json->health->maxMemory / (1024 * 1024 * 10
 
 // Display server stats
 echo '<div class="container">';
+echo '<div class="console-btn">';
+echo '<a href="./console.php" class="console-btn">Console</a>';
+echo '</div>';
 echo '<div class="server-stats">Server Stats:</div>';
 echo 'The Server TPS Is <span class="tps">' . $server_json->tps . '</span><br>';
 echo 'Server Memory <span class="memory">' . $freeMemoryGB . ' GB</span>/<span class="memory">' . $maxMemoryGB . ' GB</span><br>';
