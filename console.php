@@ -17,7 +17,7 @@ if (@$_SERVER['HTTP_CONSOLE'] !== $console_password) {
   <body>
     <div class="container">
       <h1>Console</h1>
-      <form action="send_command.php" method="post">
+      <form action="./send_command.php" method="post">
         <div class="form-group">
           <label for="command">Command:</label>
           <input type="text" id="command" name="command">

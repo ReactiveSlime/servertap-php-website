@@ -3,6 +3,8 @@
 <head>
     <title>My Page</title>
     <link rel="stylesheet" href="./assets/css/style.css">
+    <meta http-equiv="refresh" content="5;URL='./index.php'">
+
 </head>
 
 <?php
@@ -79,18 +81,18 @@ if ($online = count($online_players)) {
 // Displays data about each player
 return sprintf(
     '<div class="player">
-        <a href="player.php?uuid=%s">%s</a> <br>
+        <div class="player-name">%s<br></div>
         <img class="player-avatar" src="https://crafatar.com/avatars/%s" width="64px" alt="Minecraft player head"/>
         <div class="player-location">%s</div>
         <div class="player-health">Health %s <img src="./assets/img/heart.png" /></div>
         <div class="player-hunger">Hunger %s <img src="./assets/img/food.png" /></div>
     </div>',
-    $player->uuid,
+    
     $player->displayName,
     $player->uuid,
     $player_location,
-    $player_data->health,
-    $player_data->hunger,
+    ceil($player_data->health),
+    ceil($player_data->hunger),
 );
 
     }, $online_players);
