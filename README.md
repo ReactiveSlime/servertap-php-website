@@ -1,3 +1,7 @@
+I have archived this as I have remade this using node.js
+
+https://github.com/ReactiveSlime/Servertap-web-interface
+
 # servertap-php-website
 A php wrapper that displays stats about your server and players using [servertap](https://servertap.io)
 Here is what the page will look like with players online.
